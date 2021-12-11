@@ -19,15 +19,21 @@ int main(int argc, char *argv[]){
 	int h = 0, c=0, u=0, n=0, flag = 0;
 	recibirArgumentos(argc, argv, &h, &c, &u, &n, &flag);
 	if(flag==1){
-		printf("Se utilizo flag -b\n");
-	}else{
-		printf("No se utiliza flag -b\n");
+		//printf("Se utilizo flag -b\n");
+		//printf("Se utilizo flag -b\n");
+		estructuraResultados();
 	}
 	printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);
 	/*printf("valor de flag -h es: %d\n", h);	
 	printf("valor de flag -c es: %d\n", c);	
 	printf("valor de flag -u es: %d\n", u);	
 	printf("valor de flag -n es: %d\n", n);*/	
+}
+
+void estructuraResultados(){
+	printf(" ----------------------------------------\n|");
+	printf("|\timage\t |\tNearly black\t|\n");
+	printf(" ----------------------------------------\n|");
 }
 
 //Entradas: Recibe 

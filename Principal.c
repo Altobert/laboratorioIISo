@@ -20,18 +20,15 @@ int main(int argc, char *argv[]){
 	recibirArgumentos(argc, argv, &h, &c, &u, &n, &flag);
 	if(flag==1){
 		printf("Se utilizo flag -b\n");
+	}else{
+		printf("No se utiliza flag -b\n");
 	}
-	printf("El argumento de flag -h es: %d\n", h);	
-	printf("El argumento de flag -c es: %d\n", c);	
-	printf("El argumento de flag -u es: %d\n", u);	
-	printf("El argumento de flag -n es: %d\n", n);	
-	//printGlobal(10);
+	printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);
+	/*printf("valor de flag -h es: %d\n", h);	
+	printf("valor de flag -c es: %d\n", c);	
+	printf("valor de flag -u es: %d\n", u);	
+	printf("valor de flag -n es: %d\n", n);*/	
 }
-
-/*void printGlobal(int valor){
-	printf("Valor de variable global: %d\n", valor);
-}*/
-
 
 //Entradas: Recibe 
 //argc: que consiste en el contador de argumentos ingresados en la linea de comandos. El nombre del programa que se ejecuta se cuenta como un argumento

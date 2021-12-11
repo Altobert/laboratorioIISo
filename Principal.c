@@ -23,17 +23,20 @@ int main(int argc, char *argv[]){
 		//printf("Se utilizo flag -b\n");
 		estructuraResultados();
 	}
-	printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);
-	/*printf("valor de flag -h es: %d\n", h);	
-	printf("valor de flag -c es: %d\n", c);	
-	printf("valor de flag -u es: %d\n", u);	
-	printf("valor de flag -n es: %d\n", n);*/	
+	//printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);
+	printf("-h cantidad de hebras  : %d\t\n", h);	
+	printf("-c cantidad de imagenes: %d\t\n", c);	
+	printf("-u umbral para binarizar es: %d\t\n", u);	
+	printf("-n umbral para clasificacion es: %d\t\n", n);	
+	printf("-b bandera que indica si mostrar o no resultados.\n\t");	
 }
 
 void estructuraResultados(){
 	printf(" ----------------------------------------\n|");
 	printf("|\timage\t |\tNearly black\t|\n");
-	printf(" ----------------------------------------\n|");
+	printf("|----------------|----------------------|\n");
+	printf("|----------------|----------------------|\n");
+	printf("|----------------|----------------------|\n");
 }
 
 //Entradas: Recibe 

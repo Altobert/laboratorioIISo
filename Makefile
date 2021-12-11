@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -g
 all:
-	$(CC) $(CFLAGS) Principal.c -o labhilos -lpthread
-clear:
-	rm principal	
+	$(CC) $(CFLAGS) Principal.c  -o labhilos   -std=gnu99 -lm -lpthread	
+clear:	
+	rm labhilos	

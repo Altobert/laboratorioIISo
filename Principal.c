@@ -9,31 +9,33 @@ Laboratorio II Sistemas Operativos.
 Principalmente se traba de llevar la funcionalidad del laboratorio anterior 
 pero en esta oportunidad utilizar hebras o hilos (threads)
 */
-
-
+void * leerImagen(void * params);
 void * obtenerParteReal(void * params);
 void * binarizarImagen(void * params);
 void * analizarProiedades(void * params);
 void estructuraResultados();
 void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int *flag);
 
-int main(int argc, char *argv[]){
+// Problemas al utilizar barrier con mac osx
+// pthread_barrier_t our_barrier;
 
-    
-	
+int main(int argc, char *argv[]){
+    	
 	int h = 0, c=0, u=0, n=0, flag = 0;
 	recibirArgumentos(argc, argv, &h, &c, &u, &n, &flag);
 	if(flag==1){
 		//Si se agrega el flag -b, entonces, se muestra tabla de resultados
 		estructuraResultados();
 	}
-	//printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);
-	pthread_t hebras;//Referencia a hebras
+	//printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);	
 	printf("-h cantidad de hebras  : %d\t\n", h);	
 	printf("-c cantidad de imagenes: %d\t\n", c);	
 	printf("-u umbral para binarizar es: %d\t\n", u);	
 	printf("-n umbral para clasificacion es: %d\t\n", n);	
 	printf("-b bandera que indica si mostrar o no resultados.\n\t");	
+
+	pthread_t *hebras;//Referencia a hebras
+	hebras = malloc(sizeof(pthread_t)*h);
 }
 
 void estructuraResultados(){

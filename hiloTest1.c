@@ -5,7 +5,7 @@ int valor = 5;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 void *sumar(void *id){
 	(int)id;
-	printf("id es: %i\n", id);
+	printf("id de hebra es: %i\n", id);
 	pthread_mutex_lock(&mutex);//provee exclusion mutua
 	valor++;
 	pthread_mutex_unlock(&mutex);

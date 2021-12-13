@@ -16,8 +16,19 @@ void * analizarProiedades(void * params);
 void estructuraResultados();
 void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int *flag);
 
+int valor = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+void *sumar(void *id){
+	(int)id;
+	printf("id de hebra es: %i\n", id);
+	pthread_mutex_lock(&mutex);//provee exclusion mutua
+	valor++;
+	pthread_mutex_unlock(&mutex);
+	printf("el valor es: %i\n", valor);
+}
+
 // Problemas al utilizar barrier con mac osx
-// pthread_barrier_t our_barrier;
+//pthread_barrier_t our_barrier;
 
 int main(int argc, char *argv[]){
     	
@@ -36,6 +47,13 @@ int main(int argc, char *argv[]){
 
 	pthread_t *hebras;//Referencia a hebras
 	hebras = malloc(sizeof(pthread_t)*h);
+
+	for (int i = 0; i < h; ++i){
+		pthread_create(&hebras[i], NULL, sumar, (void *)i );
+	}
+	for (int i = 0; i < h; ++i){
+		pthread_join(hebras[i], NULL);
+	}
 }
 
 void estructuraResultados(){

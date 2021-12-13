@@ -13,15 +13,11 @@ void *sumar(void *id){
 }
 int main(){
 	pthread_t *h1;
-	h1 = malloc(sizeof(pthread_t)*5);
-	char g;
-	for (int i = 0; i < 5; ++i)
-	{
+	h1 = malloc(sizeof(pthread_t)*5);	
+	for (int i = 0; i < 5; ++i){
 		pthread_create(&h1[i], NULL, sumar, (void *)i );
-
 	}
-	for (int i = 0; i < 5; ++i)
-	{
+	for (int i = 0; i < 5; ++i){
 		pthread_join(h1[i], NULL);
 	}
 	

@@ -26,7 +26,6 @@ int main()
 	pthread_create(&thread_1, NULL, (void*)thread_func, NULL);
 	printf("\n Thread %p createdn", (void*)thread_1);
 
-
 	pthread_create(&thread_2, NULL, (void*)thread_func, NULL);
 	printf("\n Thread %p createdn", (void*)thread_2);
 

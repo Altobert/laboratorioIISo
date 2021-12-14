@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-//Libreria para utilizar hebras
 #include <pthread.h>
 #include <string.h>
 /*
 Laboratorio II Sistemas Operativos.
-Principalmente se traba de llevar la funcionalidad del laboratorio anterior 
-pero en esta oportunidad utilizar hebras o hilos (threads)
+Objetivo: Utilizando los conceptos de hilos, barriers, se implementa
+laboratorio con funciona
 */
 void * leerImagen(void * params);
 void * obtenerParteReal(void * params);
@@ -62,6 +61,7 @@ int main(int argc, char *argv[]){
 		pthread_join(hebras[i], NULL);
 	}
 
+	//Funcionalidad o parametro que permite destruir barrier.
 	pthread_barrier_destroy(&barrier);
 
 	return 0;

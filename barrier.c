@@ -7,9 +7,9 @@ pthread_barrier_t barrier;
 int b; //var global 
 void* thread_func(void* aArgs)
 {
-	pthread_mutex_lock(mutex);
+	pthread_mutex_lock(mutex1);
 	b;  //seccion critica
-	pthread_mutex_unlock(mutex);
+	pthread_mutex_unlock(mutex1);
 	pthread_barrier_wait(&barrier);
 
 	printf("\n Entering thread %pn", (void*)pthread_self());

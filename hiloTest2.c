@@ -17,7 +17,7 @@ void *SimpleThread(void *args)
         pthread_mutex_lock(&mutex1); //wait
         val = SharedVariable;
         pthread_mutex_unlock(&mutex1);
-        printf("*** thread %d sees value %d\n", which, val);
+        printf("*** Hilo %d ve valor %d\n", which, val);
         SharedVariable = val + 1;
         
     }
@@ -25,15 +25,21 @@ void *SimpleThread(void *args)
     pthread_barrier_wait(&barrier1);
 
     val = SharedVariable;
-    printf("Thread %d sees final value %d\n", which, val);
+    printf("Hebra %d ve final valor %d\n", which, val);
     return 0;
 }
 
 int main (int argc, char *argv[])
 {
+    //aca se define el numero de hilos
     int num_threads = 3;
+
+    //Si el numero de hilos es mayor a cero, entra al if
     if (num_threads > 0) {
-        pthread_t threads[num_threads]; //crear n hebras
+
+        //Se crean las hebras
+        pthread_t threads[num_threads];
+        
         int rc;
         int t;
 

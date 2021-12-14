@@ -18,17 +18,19 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 
 int valor = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+// Problemas al utilizar barrier con mac osx
+pthread_barrier_t barrier;
+
 void *sumar(void *id){
 	(int)id;
 	printf("id de hebra es: %i\n", id);
 	pthread_mutex_lock(&mutex);//provee exclusion mutua
 	valor++;
 	pthread_mutex_unlock(&mutex);
-	printf("el valor es: %i\n", valor);
+	printf("El valor es: %i\n", valor);
 }
 
-// Problemas al utilizar barrier con mac osx
-//pthread_barrier_t our_barrier;
 
 int main(int argc, char *argv[]){
     	
@@ -45,17 +47,29 @@ int main(int argc, char *argv[]){
 	printf("-n umbral para clasificacion es: %d\t\n", n);	
 	printf("-b bandera que indica si mostrar o no resultados.\n\t");	
 
+	pthread_barrier_init(&barrier, NULL, h);
+
 	pthread_t *hebras;//Referencia a hebras
 	hebras = malloc(sizeof(pthread_t)*h);
-
+	
+	//Las hebras creadas iran sumando. Se pasa el parametro por referencia al metodo
 	for (int i = 0; i < h; ++i){
 		pthread_create(&hebras[i], NULL, sumar, (void *)i );
 	}
+
+	//La cantidad de hebras contenidas en h se iran cerrando.
 	for (int i = 0; i < h; ++i){
 		pthread_join(hebras[i], NULL);
 	}
+
+	pthread_barrier_destroy(&barrier);
+
+	return 0;
 }
 
+/*
+	Método encargado de mostrar resultados utilizando un formato.
+*/
 void estructuraResultados(){
 	printf(" ----------------------------------------\n|");
 	printf("|\timage\t |\tNearly black\t|\n");
@@ -65,12 +79,14 @@ void estructuraResultados(){
 }
 
 //Entradas: Recibe 
-//argc: que consiste en el contador de argumentos ingresados en la linea de comandos. El nombre del programa que se ejecuta se cuenta como un argumento
+//argc: que consiste en el contador de argumentos ingresados en la linea de comandos.
+//El nombre del programa que se ejecuta se cuenta como un argumento
 //argv: arreglo con las entradas ingresadas por linea de comandos
 //*n y *flag: punteros a variables que se utilizaran para pasar valores por referencia, ambos son enteros
 //Funcionamiento:
 //Salida: No posee retorno, ya que es una función void
 void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int *flag){
+
 	int flags, opt;
 	char *aux3=NULL;
 	char *auxC=NULL;
@@ -78,6 +94,10 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 	char *auxU=NULL;
 	char *auxN=NULL;
 
+	/*
+		Se crea espacio de memoria para cada variable recibida por consola.
+		Tambien es casteada a tipo de dato entero.
+	*/
 	aux3 = malloc(10*sizeof(char));
 	auxC = malloc(10*sizeof(char));
 	auxH = malloc(10*sizeof(char));

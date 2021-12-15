@@ -3,17 +3,25 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <string.h>
+
+#include "Estructuras.h"
+
+struct arg_struct {
+    int arg1;
+    int arg2;
+};
+
 /*
 Laboratorio II Sistemas Operativos.
 Objetivo: Utilizando los conceptos de hilos, barriers, se implementa
 laboratorio con funciona
 */
-void * leerImagen(void * params);
-void * obtenerParteReal(void * params);
-void * binarizarImagen(void * params);
-void * analizarProiedades(void * params);
-void estructuraResultados();
-void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int *flag);
+void *leerImagen(void * params);
+void *obtenerParteReal(void * params);
+void *binarizarImagen(void * params);
+void *analizarProiedades(void * params);
+void *estructuraResultados(void * val);
+void  recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int *flag);
 
 int valor = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -22,8 +30,8 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_barrier_t barrier;
 
 void *sumar(void *id){
-	(int)id;
-	printf("id de hebra es: %i\n", id);
+	int mival = (int)id;
+	printf("id de hebra es: %i\n", mival);
 	pthread_mutex_lock(&mutex);//provee exclusion mutua
 	valor++;
 	pthread_mutex_unlock(&mutex);
@@ -33,11 +41,22 @@ void *sumar(void *id){
 
 int main(int argc, char *argv[]){
     	
+	//Variables que ingresaran por consola
 	int h = 0, c=0, u=0, n=0, flag = 0;
+
+	//Nombre del archivo que se debe leer
+	char  mensaje[30]   = "ifft_HLTau.raw";
+
+	int size = 1024;
+	//Tamanio del archivo a leer
+	int lenComplex = 2*size*size;
+
 	recibirArgumentos(argc, argv, &h, &c, &u, &n, &flag);
 	if(flag==1){
 		//Si se agrega el flag -b, entonces, se muestra tabla de resultados
-		estructuraResultados();
+		int valor=1000;
+		//pasando valor por referencia a funcion estructuraResultados 
+		estructuraResultados((void *)valor);
 	}
 	//printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);	
 	printf("-h cantidad de hebras  : %d\t\n", h);	
@@ -47,6 +66,16 @@ int main(int argc, char *argv[]){
 	printf("-b bandera que indica si mostrar o no resultados.\n\t");	
 
 	pthread_barrier_init(&barrier, NULL, h);
+
+	float *Visibilidades    = (float*)malloc(sizeof(float)*lenComplex);
+	var.a = Visibilidades;
+	/*Presente hebra sera la encargada de leer archivo*/
+	int hbPrincipal=1;
+	pthread_t *hebraPpal;//Referencia a hebras
+	hebraPpal = malloc(sizeof(pthread_t)*hbPrincipal);
+	pthread_create(&hebraPpal, NULL, leerArchivoFloat, );
+	/*Presente hebra sera la encargada de leer archivo*/
+
 
 	pthread_t *hebras;//Referencia a hebras
 	hebras = malloc(sizeof(pthread_t)*h);
@@ -70,7 +99,9 @@ int main(int argc, char *argv[]){
 /*
 	Método encargado de mostrar resultados utilizando un formato.
 */
-void estructuraResultados(){
+void * estructuraResultados(void *val){
+	int thisVal = (int)val;
+	printf("id de hebra es: %i\n", thisVal);
 	printf(" ----------------------------------------\n|");
 	printf("|\timage\t |\tNearly black\t|\n");
 	printf("|----------------|----------------------|\n");
@@ -124,7 +155,7 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 	//y además se debe indicar si dicha entrada estará acompañada de algún valor
 	//Esto se indica con ":". Por lo tanto, "h:" quiere decir que se espera recibir la opcion -h 
 	//y esta si o si debe estar acompañada de un valor
-	//En cambio, la opcion "-m" no necesita estar acompañada de un valor
+	//En cambio, la opcion "-b" no necesita estar acompañada de un valor
 	while((opt = getopt(argc, argv, "bc:h:u:n:")) != -1) { 
 	   //opt recibe el argumento leido (se hace de forma secuencial) y se ingresa a un switch
 	   //En caso de que opt sea -1, se dejaran de buscar entradas y por lo tanto se podrá salir del while
@@ -134,7 +165,7 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 		   flags = 1;
 		   break;
        
-	   case 'c':	   		
+	   case 'c'://se busca la entrada -c	   		
 	   		C = strtol(optarg, &auxC, 10);//se parsea el argumento ingresado junto al flag -h a entero
 			if(optarg!=0 && C==0){//si no se ingresa un argumento junto a -h o si no se logra parsear el argumento ingresado, se considera como invalido
 				fprintf(stderr, "Uso correcto: %s [-c numero entero]\n", argv[0]); 
@@ -150,7 +181,7 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 		   }
 		   break;
 
-		case 'u': //se busca la entrada -h
+		case 'u': //se busca la entrada -u
 		   U = strtol(optarg, &auxU, 10);//se parsea el argumento ingresado junto al flag -h a entero
 		   if(optarg!=0 && U==0){//si no se ingresa un argumento junto a -h o si no se logra parsear el argumento ingresado, se considera como invalido
 				fprintf(stderr, "Uso correcto: %s [-h numero entero] [-m]\n", argv[0]); 
@@ -158,7 +189,7 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 		   }
 		   break;
 
-		case 'n': //se busca la entrada -h
+		case 'n': //se busca la entrada -n
 		   N = strtol(optarg, &auxN, 10);//se parsea el argumento ingresado junto al flag -h a entero
 		   if(optarg!=0 && N==0){//si no se ingresa un argumento junto a -h o si no se logra parsear el argumento ingresado, se considera como invalido
 				fprintf(stderr, "Uso correcto: %s [-h numero entero] [-m]\n", argv[0]); 
@@ -190,4 +221,21 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 	}
 
 
+}
+
+// Funcion void para leer archivo
+// Entrada: char x float x int 
+// Salida : float * out
+void leerArchivoFloat(const char* fileName, float * out, int len){
+    //Abrir el archivo en modo binario
+    FILE* fid = fopen(fileName, "rb");
+    if(fid == NULL){
+        printf("Error en funcion leerArchivo() no pudo leer archivo %s \n",fileName);
+        exit(0);
+    }
+    //Se lee el archivo, y se asigna a la variable out.
+    //Automaticamente queda en nuestro arreglo la informacion correspondiente. 
+    fread(out, sizeof(float),len, fid);
+    //Se cierra el archivo
+    fclose(fid);
 }

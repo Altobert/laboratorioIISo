@@ -14,5 +14,9 @@
 	./labhilos -h 1 -c 2 -u 3 -n 4 
 
 	c) Comentario de prueba
+
+	d) Repositorio proyecto: https://github.com/Altobert/laboratorioIISo
+
+	
 	
 

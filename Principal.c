@@ -6,9 +6,9 @@
 
 #include "Estructuras.h"
 
-struct arg_struct {
-    int arg1;
-    int arg2;
+struct Pairs {
+    float *vs;
+  	int b;
 };
 
 /*
@@ -16,6 +16,7 @@ Laboratorio II Sistemas Operativos.
 Objetivo: Utilizando los conceptos de hilos, barriers, se implementa
 laboratorio con funciona
 */
+void *comparar(void * params);
 void *leerImagen(void * params);
 void *obtenerParteReal(void * params);
 void *binarizarImagen(void * params);
@@ -40,6 +41,10 @@ void *sumar(void *id){
 
 
 int main(int argc, char *argv[]){
+
+	//
+	struct Pairs *pair;
+
     	
 	//Variables que ingresaran por consola
 	int h = 0, c=0, u=0, n=0, flag = 0;
@@ -68,12 +73,15 @@ int main(int argc, char *argv[]){
 	pthread_barrier_init(&barrier, NULL, h);
 
 	float *Visibilidades    = (float*)malloc(sizeof(float)*lenComplex);
-	var.a = Visibilidades;
+	pair = malloc(sizeof(struct Pairs));
+	// allocate a separate pair for each thread
+    pair = malloc(sizeof(struct Pairs));
+	 (*pair).vs = Visibilidades ;
 	/*Presente hebra sera la encargada de leer archivo*/
 	int hbPrincipal=1;
 	pthread_t *hebraPpal;//Referencia a hebras
 	hebraPpal = malloc(sizeof(pthread_t)*hbPrincipal);
-	pthread_create(&hebraPpal, NULL, leerArchivoFloat, );
+	pthread_create(&hebraPpal, NULL, comparar, (void*)pair);
 	/*Presente hebra sera la encargada de leer archivo*/
 
 
@@ -94,6 +102,15 @@ int main(int argc, char *argv[]){
 	pthread_barrier_destroy(&barrier);
 
 	return 0;
+}
+
+void * comparar(void* pair){
+    struct Pairs *my_pair = (struct Pairs*)pair;
+    printf("\nHilo principal %ld\n", (*my_pair).vs);
+
+    // free that memory after it has been used
+    free (pair);
+    return NULL;
 }
 
 /*

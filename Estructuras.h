@@ -3,7 +3,7 @@
 
 typedef struct
 {
-  float *a;
+  float vs;
   int b;
   
 }visibilidad;

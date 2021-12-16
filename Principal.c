@@ -11,6 +11,12 @@ struct Pairs {
   	int b;
 };
 
+struct STemplate {
+	char* fileName; 
+	float * out;
+	int len;
+};
+
 /*
 Laboratorio II Sistemas Operativos.
 Objetivo: Utilizando los conceptos de hilos, barriers, se implementa
@@ -18,6 +24,7 @@ laboratorio con funciona
 */
 void *comparar(void * params);
 void *leerImagen(void * params);
+void *leerArchivoFloat(void * params);
 void *obtenerParteReal(void * params);
 void *binarizarImagen(void * params);
 void *analizarProiedades(void * params);
@@ -42,16 +49,15 @@ void *sumar(void *id){
 
 int main(int argc, char *argv[]){
 
-	//
-	struct Pairs *pair;
+	//Declaracion de estructuras
+	struct Pairs 	 *pair;
+	struct STemplate *strFile;
 
-    	
 	//Variables que ingresaran por consola
 	int h = 0, c=0, u=0, n=0, flag = 0;
 
 	//Nombre del archivo que se debe leer
-	char  mensaje[30]   = "ifft_HLTau.raw";
-
+	char  nombreArchivo[30]   = "ifft_HLTau.raw";
 	int size = 1024;
 	//Tamanio del archivo a leer
 	int lenComplex = 2*size*size;
@@ -70,18 +76,28 @@ int main(int argc, char *argv[]){
 	printf("-n umbral para clasificacion es: %d\t\n", n);	
 	printf("-b bandera que indica si mostrar o no resultados.\n\t");	
 
+	//Se crea barrera para la cantidad de hebras 
+	//creadas por linea de comandos.
 	pthread_barrier_init(&barrier, NULL, h);
 
 	float *Visibilidades    = (float*)malloc(sizeof(float)*lenComplex);
-	pair = malloc(sizeof(struct Pairs));
-	// allocate a separate pair for each thread
-    pair = malloc(sizeof(struct Pairs));
-	 (*pair).vs = Visibilidades ;
-	/*Presente hebra sera la encargada de leer archivo*/
+
+	//Se instancia Struct con el fin de pasar parametros relacionados
+	//al archivo a leer.	
+	strFile = malloc(sizeof(struct STemplate));
+	(*strFile).fileName = nombreArchivo;
+	(*strFile).len= Visibilidades;
+	(*strFile).out= lenComplex;
+	
+	//Se hace referencia a que solamente es una hebra. La cual sera la principal 
+	//que lea el archivo con extension .raw
 	int hbPrincipal=1;
+	/*Presente hebra sera la encargada de leer archivo*/
 	pthread_t *hebraPpal;//Referencia a hebras
+	//Se asigna memoria dinamica a la hebra principal
 	hebraPpal = malloc(sizeof(pthread_t)*hbPrincipal);
-	pthread_create(&hebraPpal, NULL, comparar, (void*)pair);
+	//
+	pthread_create(&hebraPpal, NULL, leerArchivoFloat, (void*)strFile);
 	/*Presente hebra sera la encargada de leer archivo*/
 
 
@@ -104,9 +120,35 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
+// Funcion void para leer archivo
+// Entrada: char x float x int 
+// Salida : float * out
+void *leerArchivoFloat(void * params){
+	//const char* fileName, float * out, int len
+    //Abrir el archivo en modo binario
+	
+	struct STemplate *my_template = (struct Pairs*)params;
+
+	printf("\nfloat recibido %s\n", (*my_template).fileName);
+    FILE* fid = fopen( (*my_template).fileName, "rb");
+
+    if(fid == NULL){
+        printf("Error en funcion leerArchivo() no pudo leer archivo %s \n",(*my_template).fileName);
+        exit(0);
+    }
+    //Se lee el archivo, y se asigna a la variable out.
+    //Automaticamente queda en nuestro arreglo la informacion correspondiente. 
+    fread((*my_template).out, sizeof(float),(*my_template).len, fid);
+    //Se cierra el archivo
+    fclose(fid);
+	// Se libera la memoria luego de haber sido usada.
+    free (params);
+
+}
+
 void * comparar(void* pair){
     struct Pairs *my_pair = (struct Pairs*)pair;
-    printf("\nHilo principal %ld\n", (*my_pair).vs);
+    printf("\nfloat recibido %ld\n", (*my_pair).vs);
 
     // free that memory after it has been used
     free (pair);
@@ -158,7 +200,7 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 		fprintf(stderr, "Uso correcto: %s [-h numero entero] [-m]\n",
 				   argv[0]);
 		   exit(EXIT_FAILURE);
-		}
+	}
 
 	//Se inicializan variables con el fin de no tener fallos por punteros en malas condiciones.	
 	int H = -1, C = -1, U = -1, N = -1;
@@ -228,8 +270,8 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 
 	(*h) = H; //se iguala la variable n a N, para poder acceder al valor en el main
 	(*c) = C; //se iguala la variable c a C, para poder acceder al valor en el main
-	(*u) = U;
-	(*n) = N;
+	(*u) = U; //se iguala la variable u a U, para poder acceder al valor en el main
+	(*n) = N; //se iguala la variable n a N, para poder acceder al valor en el main
 
 	if(N<=0){
 		printf("El valor que acompaña a -h debe ser mayor a 0\n");
@@ -238,21 +280,4 @@ void recibirArgumentos(int argc, char *argv[], int *h,int *c,int *u, int *n, int
 	}
 
 
-}
-
-// Funcion void para leer archivo
-// Entrada: char x float x int 
-// Salida : float * out
-void leerArchivoFloat(const char* fileName, float * out, int len){
-    //Abrir el archivo en modo binario
-    FILE* fid = fopen(fileName, "rb");
-    if(fid == NULL){
-        printf("Error en funcion leerArchivo() no pudo leer archivo %s \n",fileName);
-        exit(0);
-    }
-    //Se lee el archivo, y se asigna a la variable out.
-    //Automaticamente queda en nuestro arreglo la informacion correspondiente. 
-    fread(out, sizeof(float),len, fid);
-    //Se cierra el archivo
-    fclose(fid);
 }

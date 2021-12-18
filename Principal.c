@@ -11,12 +11,17 @@ struct Pairs {
   	int b;
 };
 
-struct STemplate {
+struct StructLectura {
 	char* fileName; 
 	float * out;
 	int len;
 	int tam;
-};
+}strlectura;
+
+struct StructParteReal {
+	float * visibilidades;
+	int largo;
+}strParteReal;
 
 /*
 Laboratorio II Sistemas Operativos.
@@ -53,7 +58,9 @@ int main(int argc, char *argv[]){
 
 	//Declaracion de estructuras
 	struct Pairs 	 *pair;
-	struct STemplate *strFile,*strGetReal;
+	//struct StructLectura *strFile;
+	//struct StructLectura 	strlectura;
+	//struct StructParteReal  strParteReal;
 
 	//Variables que ingresaran por consola
 	int h = 0, c=0, u=0, n=0, flag = 0;
@@ -74,27 +81,25 @@ int main(int argc, char *argv[]){
 		//pasando valor por referencia a funcion estructuraResultados 
 		estructuraResultados((void *)valor);
 	}
-	printf("-h cantidad de hebras  : %d\t\n", h);	
-	printf("-c cantidad de imagenes: %d\t\n", c);	
-	printf("-u umbral para binarizar es: %d\t\n", u);	
-	printf("-n umbral para clasificacion es: %d\t\n", n);	
-	printf("-b bandera que indica si mostrar o no resultados.\n\t");	
+	printf("-h cantidad de hebras  : %d\n", h);	
+	printf("-c cantidad de imagenes: %d\n", c);	
+	printf("-u umbral para binarizar es: %d\n", u);	
+	printf("-n umbral para clasificacion es: %d\n", n);	
+	printf("-b bandera que indica si mostrar o no resultados.\n");	
 
 	//Se crea barrera para la cantidad de hebras 
 	//creadas por linea de comandos.
 	pthread_barrier_init(&barrier, NULL, h);
 
+	//Memoria dinamica creada para recibir los valores. 
 	float *Visibilidades    = (float*)malloc(sizeof(float)*lenComplex);
 	float *VisibilidadesOut = (float*)malloc(sizeof(float)*lenComplex);
 
-	printf("Visibilidades %d\n",*Visibilidades);
+	printf("Visibilidades %d\n", Visibilidades);
 
-	//Se instancia Struct con el fin de pasar parametros relacionados
-	//al archivo a leer.	
-	strFile = malloc(sizeof(struct STemplate));
-	(*strFile).fileName = nombreArchivo;
-	(*strFile).len= Visibilidades;
-	(*strFile).out= lenComplex;
+	strlectura.fileName = nombreArchivo;
+	strlectura.len=Visibilidades;
+	strlectura.out=lenComplex;
 	
 	//Se hace referencia a que solamente es una hebra, la cual será la principal 
 	//que lea el archivo con extension .raw
@@ -103,16 +108,13 @@ int main(int argc, char *argv[]){
 	pthread_t *hebraPpal;//Referencia a hebras
 	//Se asigna memoria dinamica a la hebra principal
 	hebraPpal = malloc(sizeof(pthread_t)*hbPrincipal);
-	pthread_create(&hebraPpal[0], NULL, leerArchivoFloat, (void*)strFile);
+	pthread_create(&hebraPpal[0], NULL, leerArchivoFloat, (void*)&strlectura);
 	/*Presente hebra sera la encargada de leer archivo*/
 	
-	
+	strParteReal.largo = len;
+	strParteReal.visibilidades = Visibilidades;
 
-	strGetReal = malloc(sizeof(struct STemplate));
-	(*strGetReal).tam = len;
-	(*strGetReal).len = Visibilidades;
-	/*Hebra real encargada de obtener la parte real del archivo*/
-	pthread_create(&hebraPpal[1], NULL, obtenerParteReal, (void*)strGetReal);
+	pthread_create(&hebraPpal[1], NULL, obtenerParteReal, (void*)&strParteReal);
 	pthread_join(hebraPpal[0], NULL);
 	pthread_join(hebraPpal[1], NULL);
 
@@ -136,6 +138,10 @@ int main(int argc, char *argv[]){
 	//Funcionalidad o parametro que permite destruir barrier.
 	pthread_barrier_destroy(&barrier);
 
+	//Se libera memoria dinamica asignada.
+	free(Visibilidades);
+	free(VisibilidadesOut);
+
 	return 0;
 }
 
@@ -150,10 +156,10 @@ void *obtenerParteReal(void * params){
 	//float* visible, int largo
 	//Se accede a los valores de la estructura pasada por referencia.
 	printf("Antes de recibir struct\n");
-	struct STemplate *my_template = (struct STemplate*)params;
+	struct StructParteReal *my_template = (struct StructParteReal*)params;
 
-	printf("Visibilidades:%d \n",(*my_template).len);
-	printf("len:%d \n",(*my_template).tam);
+	printf("Visibilidades:%d \n",my_template->visibilidades);
+	printf("Largo:%d \n",my_template->largo);
 
 }
 
@@ -163,20 +169,20 @@ void *obtenerParteReal(void * params){
 void *leerArchivoFloat(void * params){
 	
     //Se accede a los valores de la estructura pasada por referencia.
-	struct STemplate *my_template = (struct STemplate*)params;
+	struct StructLectura *my_template = (struct StructLectura*)params;
 
-	printf("\n Nombre archivo %s\n", (*my_template).fileName);
-	printf("\n OUT %.6f\n", (*my_template).out);
+	printf("\n Nombre archivo %s\n", my_template->fileName);
+	printf("\n Salida %.6f\n", my_template->out);
 	
-    FILE* fid = fopen( (*my_template).fileName, "rb");
+    FILE* fid = fopen( my_template->fileName, "rb");
 
     if(fid == NULL){
-        printf("Error en funcion leerArchivo() no pudo leer archivo %s \n",(*my_template).fileName);
+        printf("Error en funcion leerArchivo() no pudo leer archivo %s \n",my_template->fileName);
         exit(0);
     }
     //Se lee el archivo, y se asigna a la variable out.
     //Automaticamente queda en nuestro arreglo la informacion correspondiente. 
-    fread((*my_template).out, sizeof(float),(*my_template).len, fid);
+    fread(my_template->out, sizeof(float),my_template->len, fid);
     //Se cierra el archivo
     fclose(fid);
 	// Se libera la memoria luego de haber sido usada.

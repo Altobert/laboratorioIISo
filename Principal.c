@@ -15,6 +15,7 @@ struct STemplate {
 	char* fileName; 
 	float * out;
 	int len;
+	int tam;
 };
 
 /*
@@ -26,6 +27,7 @@ void *comparar(void * params);
 void *leerImagen(void * params);
 void *leerArchivoFloat(void * params);
 void *obtenerParteReal(void * params);
+void *escribirArchivoFloat(void * params);
 void *binarizarImagen(void * params);
 void *analizarProiedades(void * params);
 void *estructuraResultados(void * val);
@@ -51,7 +53,7 @@ int main(int argc, char *argv[]){
 
 	//Declaracion de estructuras
 	struct Pairs 	 *pair;
-	struct STemplate *strFile;
+	struct STemplate *strFile,*strGetReal;
 
 	//Variables que ingresaran por consola
 	int h = 0, c=0, u=0, n=0, flag = 0;
@@ -59,8 +61,11 @@ int main(int argc, char *argv[]){
 	//Nombre del archivo que se debe leer
 	char  nombreArchivo[30]   = "ifft_HLTau.raw";
 	int size = 1024;
-	//Tamanio del archivo a leer
+	//Tamanio del archivo a leer.
 	int lenComplex = 2*size*size;
+	//valor largo de la salida.
+	int len =size*size;
+	printf("len %d\n",len);
 
 	recibirArgumentos(argc, argv, &h, &c, &u, &n, &flag);
 	if(flag==1){
@@ -69,7 +74,6 @@ int main(int argc, char *argv[]){
 		//pasando valor por referencia a funcion estructuraResultados 
 		estructuraResultados((void *)valor);
 	}
-	//printf("valores h:%d, c:%d, u:%d, n:%d\n",h, c, u, n);	
 	printf("-h cantidad de hebras  : %d\t\n", h);	
 	printf("-c cantidad de imagenes: %d\t\n", c);	
 	printf("-u umbral para binarizar es: %d\t\n", u);	
@@ -81,6 +85,9 @@ int main(int argc, char *argv[]){
 	pthread_barrier_init(&barrier, NULL, h);
 
 	float *Visibilidades    = (float*)malloc(sizeof(float)*lenComplex);
+	float *VisibilidadesOut = (float*)malloc(sizeof(float)*lenComplex);
+
+	printf("Visibilidades %d\n",*Visibilidades);
 
 	//Se instancia Struct con el fin de pasar parametros relacionados
 	//al archivo a leer.	
@@ -89,20 +96,32 @@ int main(int argc, char *argv[]){
 	(*strFile).len= Visibilidades;
 	(*strFile).out= lenComplex;
 	
-	//Se hace referencia a que solamente es una hebra. La cual sera la principal 
+	//Se hace referencia a que solamente es una hebra, la cual será la principal 
 	//que lea el archivo con extension .raw
-	int hbPrincipal=1;
+	int hbPrincipal=2;
 	/*Presente hebra sera la encargada de leer archivo*/
 	pthread_t *hebraPpal;//Referencia a hebras
 	//Se asigna memoria dinamica a la hebra principal
 	hebraPpal = malloc(sizeof(pthread_t)*hbPrincipal);
-	//
-	pthread_create(&hebraPpal, NULL, leerArchivoFloat, (void*)strFile);
+	pthread_create(&hebraPpal[0], NULL, leerArchivoFloat, (void*)strFile);
 	/*Presente hebra sera la encargada de leer archivo*/
+	
+	
+
+	strGetReal = malloc(sizeof(struct STemplate));
+	(*strGetReal).tam = len;
+	(*strGetReal).len = Visibilidades;
+	/*Hebra real encargada de obtener la parte real del archivo*/
+	pthread_create(&hebraPpal[1], NULL, obtenerParteReal, (void*)strGetReal);
+	pthread_join(hebraPpal[0], NULL);
+	pthread_join(hebraPpal[1], NULL);
 
 
+	//Se crea la cantidad de hebras que el usuario
+	//ingresa por consola por medi del atributo h.
 	pthread_t *hebras;//Referencia a hebras
 	hebras = malloc(sizeof(pthread_t)*h);
+	
 	
 	//Las hebras creadas iran sumando. Se pasa el parametro por referencia al metodo
 	for (int i = 0; i < h; ++i){
@@ -120,16 +139,35 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
+/*
+Funcion obtenerParteReal real permite acceder a las posiciones del arreglo visible.
+y luego retornar un arreglo solo con la parte real de la imagen.
+Entrada: float X int
+salida : *float
+*/
+void *obtenerParteReal(void * params){
+
+	//float* visible, int largo
+	//Se accede a los valores de la estructura pasada por referencia.
+	printf("Antes de recibir struct\n");
+	struct STemplate *my_template = (struct STemplate*)params;
+
+	printf("Visibilidades:%d \n",(*my_template).len);
+	printf("len:%d \n",(*my_template).tam);
+
+}
+
 // Funcion void para leer archivo
 // Entrada: char x float x int 
 // Salida : float * out
 void *leerArchivoFloat(void * params){
-	//const char* fileName, float * out, int len
-    //Abrir el archivo en modo binario
 	
-	struct STemplate *my_template = (struct Pairs*)params;
+    //Se accede a los valores de la estructura pasada por referencia.
+	struct STemplate *my_template = (struct STemplate*)params;
 
-	printf("\nfloat recibido %s\n", (*my_template).fileName);
+	printf("\n Nombre archivo %s\n", (*my_template).fileName);
+	printf("\n OUT %.6f\n", (*my_template).out);
+	
     FILE* fid = fopen( (*my_template).fileName, "rb");
 
     if(fid == NULL){
@@ -142,9 +180,10 @@ void *leerArchivoFloat(void * params){
     //Se cierra el archivo
     fclose(fid);
 	// Se libera la memoria luego de haber sido usada.
-    free (params);
+    //free (params);
 
 }
+
 
 void * comparar(void* pair){
     struct Pairs *my_pair = (struct Pairs*)pair;

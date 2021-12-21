@@ -1,0 +1,2 @@
+funciones.o: funciones.c Estructuras.h
+principal.o: principal.c funciones.h Estructuras.h

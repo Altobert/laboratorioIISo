@@ -1,9 +1,30 @@
-CC=gcc
-CFLAGS=-Wall -g
-all:
-	$(CC) $(CFLAGS) Principal.c    -o labhilos     -std=gnu99 -lm -lpthread
-	$(CC) $(CFLAGS) hiloTest2.c    -o hiloTest2    -std=gnu99 -lm -lpthread			
-clear:	
-	rm labhilos	
-	rm hiloTest2
-		
+salida_out = salida
+
+
+salida_headers = funciones.h
+salida_source  = $(salida_headers:.h=.c) principal.c
+salida_objects = $(salida_source:.c=.o)
+
+CC     = gcc
+CFLAGS = -Wall
+
+depends = .depends
+
+build : $(salida_out) 
+
+$(salida_out) : $(salida_objects)
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+$(objects) :
+	$(CC) $(CFLAGS) -c -o $@ $*.c
+
+$(depends) : $(salida_source) $(salida_headers)
+	@$(CC) -MM $(salida_source) > $@
+
+
+clean :
+	$(RM) $(salida_out) $(salida_objects) $(zipfile) $(depends)
+
+.PHONY : build zip clean
+
+sinclude $(depends)

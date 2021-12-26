@@ -1,4 +1,4 @@
-salida_out = salida
+salida_out = labhilos
 
 
 salida_headers = funciones.h
@@ -13,7 +13,7 @@ depends = .depends
 build : $(salida_out) 
 
 $(salida_out) : $(salida_objects)
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^  -pthread -lm
 
 $(objects) :
 	$(CC) $(CFLAGS) -c -o $@ $*.c
@@ -22,7 +22,7 @@ $(depends) : $(salida_source) $(salida_headers)
 	@$(CC) -MM $(salida_source) > $@
 
 
-clean :
+clear :
 	$(RM) $(salida_out) $(salida_objects) $(zipfile) $(depends)
 
 .PHONY : build zip clean

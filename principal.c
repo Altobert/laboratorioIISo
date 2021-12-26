@@ -64,8 +64,8 @@ int main(int argc, char *argv[]){
 	pthread_barrier_init(&barrier, NULL, h);
 
 	//Memoria dinamica creada para recibir los valores. 
-	float *Visibilidades    = (float*)malloc(sizeof(float)*lenComplex);
-	float *VisibilidadesOut = (float*)malloc(sizeof(float)*lenComplex);
+	int *Visibilidades    = (int *)malloc(sizeof(int )*lenComplex);
+	int *VisibilidadesOut = (int *)malloc(sizeof(int )*lenComplex);
 
 	printf("Visibilidades %d\n", Visibilidades);
 

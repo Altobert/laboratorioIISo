@@ -17,6 +17,12 @@
 
 	d) Repositorio proyecto: https://github.com/Altobert/laboratorioIISo
 
+	e) Autoevaluación: 
+       Debido a una mala organizacion del tiempo, laboratorio queda incompleto. No obstante, existieron dudas de como abordar que cada 
+       hebra pudiera tomar una parte del arreglo y trasnformarlo a real. Si solo hubiese tomado una hebra para realizar el laboratorio,
+       es posible lo haya concluido, no obstante, el objetivo era aprender concurrencia y como cada hebra colabora para realizar una 
+       tarea.
+
 	
 	
 

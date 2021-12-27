@@ -26,6 +26,7 @@ struct StructLectura {
 struct StructParteReal {
 	float * visibilidades;
 	int largo;
+	float * outParteReal;
 }strParteReal;
 
 #endif // Estructuras_h_

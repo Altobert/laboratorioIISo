@@ -5,23 +5,6 @@
 #include <string.h>
 #include "Estructuras.h"
 
-/*
-Funcion obtenerParteReal real permite acceder a las posiciones del arreglo visible.
-y luego retornar un arreglo solo con la parte real de la imagen.
-Entrada: float X int
-salida : *float
-*/
-void *obtenerParteReal(void * params){
-
-	//float* visible, int largo
-	//Se accede a los valores de la estructura pasada por referencia.
-	printf("Antes de recibir struct\n");
-	struct StructParteReal *my_template = (struct StructParteReal*)params;
-
-	printf("Visibilidades:%d \n",my_template->visibilidades);
-	printf("Largo:%d \n",my_template->largo);
-
-}
 
 // Funcion void para leer archivo
 // Entrada: char x float x int 
@@ -31,8 +14,8 @@ void *leerArchivoFloat(void * params){
     //Se accede a los valores de la estructura pasada por referencia.
 	struct StructLectura *my_template = (struct StructLectura*)params;
 
-	printf("\n Nombre archivo %s\n", my_template->fileName);
-	printf("\n Salida %.6f\n", my_template->out);
+	//printf("Nombre archivo %s\n", my_template->fileName);
+	//printf("Salida %.2f\n", my_template->out);
 	
     FILE* fid = fopen( my_template->fileName, "rb");
 
@@ -49,6 +32,36 @@ void *leerArchivoFloat(void * params){
     //free (params);
 
 }
+
+/*
+Funcion obtenerParteReal real permite acceder a las posiciones del arreglo visible.
+y luego retornar un arreglo solo con la parte real de la imagen.
+Entrada: float X int
+salida : *float
+*/
+void *obtenerParteReal(void * params){
+	
+	//Se accede a los valores de la estructura pasada por referencia.	
+	struct StructParteReal *my_template = (struct StructParteReal*)params;
+
+	printf("obtenerParteReal()\n");
+	printf("Visibilidades	:%d\n",my_template->visibilidades);
+	printf("Largo	:%d\n",my_template->largo);
+
+	//Se crea un puntero float y se asigna memoria de forma dinamica.   
+    float *realVector = (float*) malloc(my_template->largo * sizeof(float));
+    
+    //Se recorre solo las posiciones pares de *visible.
+    for(int i=0, j=0 ; i<2*my_template->largo ;j++, i+=2 ){
+        //Se asigna a arreglo dinamico solo los indices
+        //pares, por ende sus valores.
+        realVector[j]=my_template->visibilidades[i];
+    }
+
+    //return realVector;
+
+}
+
 
 
 void * comparar(void* pair){

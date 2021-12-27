@@ -77,11 +77,6 @@ int main(int argc, char *argv[]){
 	/*Presente hebra sera la encargada de leer archivo*/
 	
 	
-	//Hebra principal va a obtener la parte real
-	//pthread_create(&hebraPpal[0], NULL, obtenerParteReal, (void*)&strParteReal);
-	//pthread_join(hebraPpal[0], NULL);
-	
-
 	//Se crea la cantidad de hebras que el usuario
 	//ingresa por consola por mediante el atributo -h.
 	pthread_t *hebras;//Referencia a hebras
